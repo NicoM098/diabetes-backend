@@ -14,15 +14,29 @@ export class DosisHistoryService {
    */
   async getDosisHistory(month: string) {
     try {
-      const dosisHistory: Array<any> = await this.knex
-        .select('*')
-        .from('dosis_history')
+      const dosisHistory = await this.knex('dosis_history')
+        .select(
+          'inyection_date',
+          this.knex.raw(
+            "MAX(CASE WHEN shift = 'Day' THEN inyection_time END) AS day_inyection_time",
+          ),
+          this.knex.raw(
+            "bool_or(CASE WHEN shift = 'Day' THEN success END) AS day_success",
+          ),
+          this.knex.raw(
+            "MAX(CASE WHEN shift = 'Night' THEN inyection_time END) AS night_inyection_time",
+          ),
+          this.knex.raw(
+            "bool_or(CASE WHEN shift = 'Night' THEN success END) AS night_success",
+          ),
+        )
+        .groupBy('inyection_date')
         .modify(function (queryBuilder) {
           // Filters results by a certain month
           month &&
             queryBuilder.whereRaw('extract(month from date) = ?', [month]);
         })
-        .orderBy('date', 'asc')
+        .orderBy('inyection_date', 'asc')
         .catch(error => {
           throw new HttpException(
             {
