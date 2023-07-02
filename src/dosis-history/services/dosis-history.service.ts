@@ -47,7 +47,14 @@ export class DosisHistoryService {
           );
         });
 
-      return dosisHistory;
+      // Sorts the dosis history by date (asc)
+      const sortedDosisHistory = dosisHistory.sort((a, b) => {
+        const dateA = new Date(a.inyection_date.split('/').reverse().join('/'));
+        const dateB = new Date(b.inyection_date.split('/').reverse().join('/'));
+        return dateA.getTime() - dateB.getTime();
+      });
+
+      return sortedDosisHistory;
     } catch (err) {
       console.log(`[error] getDosisHistory ~ `, err);
       throw new HttpException(
