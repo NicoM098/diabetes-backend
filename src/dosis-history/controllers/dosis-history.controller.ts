@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Param,
   Post,
   Query,
   Res,
@@ -33,6 +34,28 @@ export class DosisHistoryController {
     } finally {
       console.groupEnd();
       console.log('[end] Dosis History - getAll');
+    }
+  }
+
+  @Get('check-dosis/:shift')
+  async checkDosis(@Res() Response, @Param('shift') shift: string) {
+    try {
+      console.group('[start] Dosis History - checkDosis');
+
+      const resp = await this.dosisHistoryService.checkRegisteredDosis(shift);
+
+      Response.status(HttpStatus.OK).send({
+        status: 'success',
+        data: resp,
+      });
+    } catch (error) {
+      Response.status(error?.status || HttpStatus.INTERNAL_SERVER_ERROR).send({
+        code: error?.response?.code || '',
+        detail: error?.response?.detail || 'Unknown Error',
+      });
+    } finally {
+      console.groupEnd();
+      console.log('[end] Dosis History - checkDosis');
     }
   }
 

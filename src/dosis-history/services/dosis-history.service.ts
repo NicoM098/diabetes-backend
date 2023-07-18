@@ -68,6 +68,49 @@ export class DosisHistoryService {
   }
 
   /**
+   * Checks if a shift has already been registered
+   * @param shift | The shift to check if it has already been registered
+   * @returns A boolean indicating if the shift has already been registered
+   */
+  async checkRegisteredDosis(shift: string): Promise<boolean> {
+    try {
+      const date = new Date();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const [dosisHistory] = await this.knex('dosis_history')
+        .select('*')
+        .where({ shift })
+        .whereRaw('extract(month from date) = ?', [month])
+        .whereRaw('extract(day from date) = ?', [day])
+        .catch(error => {
+          throw new HttpException(
+            {
+              code: 'error_obtaining_dosis_history',
+              detail: `An error has ocurred while obtaining dosis history:  ${error.message}`,
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        });
+
+      console.log(
+        `Checked if shift: "${shift}" on day: "${day}" and month: "${month}" has already been registered`,
+      );
+      console.log('Result: ', dosisHistory ? true : false);
+
+      return dosisHistory ? true : false;
+    } catch (err) {
+      console.log(`[error] checkRegisteredDosis ~ `, err);
+      throw new HttpException(
+        {
+          code: err?.response?.code || '',
+          detail: err?.response?.detail || err,
+        },
+        err?.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
    * Creates a dosis history when the dosis was administrated
    * @param payload - All the necessary data to create the dosis history, of type CreateDosisHistoryDTO
    * @returns The created dosis history
