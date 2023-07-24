@@ -16,7 +16,7 @@ export class HueApiService {
   async switchLight(action: boolean) {
     try {
       // Get the API URL and headers from the methods service
-      const bridgeUrl = 'https://190.106.111.241';
+      const bridgeUrl = 'https://190.106.111.85';
       const LIGHT_ID = 'f4d950ca-1fb8-43b9-8774-2a73cee3207a';
       const BRIDE_API_KEY = 'X4wFzohej6W2ijQlXuyejDgUcf5WcpMl41xKgBal';
 
